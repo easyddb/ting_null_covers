@@ -44,14 +44,17 @@ function ting_null_covers_permission() {
  * service is required here.
  */
 function ting_null_covers_entity_view($entity, $entity_type, $view_mode, $langcode) {
+  if ($entity_type != 'ting_object') {
+    return;
+  }
   if (!variable_get('ting_null_covers_hide', FALSE)) {
     return;
   }
-  elseif ($entity_type == 'ting_object' && ($view_mode == 'collection_list' || $view_mode == 'teaser')) {
+
+  if (in_array($view_mode, array('collection_list', 'teaser', 'search_result', 'full'))) {
     drupal_add_css(drupal_get_path('module', 'ting_null_covers') . '/css/ting_null_covers.styles.css', 'file');
     $localId = $entity->localId;
     $unset_image = FALSE;
-
 
     $path = ting_covers_object_path($localId);
     // In case when covers were requested earlier and were not found.
@@ -69,15 +72,20 @@ function ting_null_covers_entity_view($entity, $entity_type, $view_mode, $langco
       );
 
       $additional_informations = $service->getByFaustNumber($localId);
-      $ai = $additional_informations[$localId];
-
-      if (!$ai->detailUrl && !$ai->thumbnailUrl) {
+      if (empty($additional_informations[$localId])) {
         $unset_image = TRUE;
+      }
+      else {
+        $ai = $additional_informations[$localId];
+
+        if (!$ai->detailUrl && !$ai->thumbnailUrl) {
+          $unset_image = TRUE;
+        }
       }
     }
 
     if ($unset_image) {
-      unset($entity->content['ting_cover']);
+      $entity->content['ting_cover']['#items'] = array();
     }
   }
 }
