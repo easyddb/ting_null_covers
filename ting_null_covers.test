@@ -1,0 +1,60 @@
+<?php
+
+class TingNullCoversTestSuite extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    // Note: getInfo() strings are not translated with t().
+    return array(
+      'name' => 'Empty ting covers test suite',
+      'description' => 'Ensure that items without covers do not have a cover placeholder.',
+      'group' => 'easyDDB',
+    );
+  }
+
+  public function setUp() {
+    $this->profile = 'ding2';
+    parent::setUp(array('ting_null_covers'));
+    module_disable(array('cookiecontrol'));
+    variable_set('ting_agency', '100200');
+    variable_set('ting_search_url', 'http://oss-services.dbc.dk/opensearch/');
+    variable_set('ting_scan_url', 'http://openscan.addi.dk/1.7/');
+    variable_set('ting_spell_url', 'http://openspell.addi.dk/1.2/');
+    variable_set('ting_recommendation_url', 'http://openadhl.addi.dk/1.1/');
+    variable_set('ting_search_profile', 'test');
+
+    variable_set('addi_wsdl_url', 'http://moreinfo.addi.dk/2.1/');
+    variable_set('addi_username', 'netpunkt');
+    variable_set('addi_group', '720100');
+    variable_set('addi_password', 'jipuskre');
+
+    variable_set('search_active_modules', array('ting_search' => 'ting_search'));
+    variable_set('search_default_module', 'ting_search');
+
+    variable_set('ting_null_covers_hide', TRUE);
+
+    $this->privileged_user = $this->drupalCreateUser(array('null covers display'));
+    $this->drupalLogin($this->privileged_user);
+  }
+
+  public function TestTingNullCoversSettings() {
+    $this->drupalGet('admin/config/ting/covers/null');
+
+    $this->assertText(t('Hide empty covers'));
+    $this->assertFieldChecked('edit-ting-null-covers-hide');
+  }
+
+  public function TestTingNullCoversEmpty() {
+    $this->drupalGet('search/ting/870971-forfweb:33379986');
+    $this->assertNoRaw('<div class="ting-cover ting-cover-object-id-33379986');
+  }
+
+  public function TestTingNullCoversNotEmpty() {
+    $this->drupalGet('search/ting/870970-basis:28822251');
+    $this->assertRaw('<div class="ting-cover ting-cover-object-id-28822251');
+  }
+
+  public function tearDown() {
+    parent::tearDown();
+  }
+}
