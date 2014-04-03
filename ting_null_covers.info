@@ -4,3 +4,4 @@ version = 7.x-1.19
 core = 7.x
 package = Ding!
 dependencies[] = ting_covers
+files[] = ting_null_covers.test
