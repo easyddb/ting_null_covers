@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * ting_null_covers.install
+ */
+
+function ting_null_covers_enable() {
+  _ting_null_covers_modify_fields();
+}
+
+function _ting_null_covers_modify_fields() {
+  $field_name = 'ting_title';
+
+  // Remove title field from search result.
+  $field_group = field_group_load_field_group(
+    'group_ting_right_col_search',
+    'ting_object',
+    'ting_object',
+    'search_result'
+  );
+  if (is_object($field_group)) {
+    $index = array_search($field_name, $field_group->children);
+    unset($field_group->children[$index]);
+    field_group_group_save($field_group);
+  }
+
+  // Remove title field from collection listing.
+  $field_group = field_group_load_field_group(
+    'group_ting_right_col_collection',
+    'ting_object',
+    'ting_object',
+    'collection_list'
+  );
+  if (is_object($field_group)) {
+    $index = array_search($field_name, $field_group->children);
+    unset($field_group->children[$index]);
+    field_group_group_save($field_group);
+  }
+
+  // Update field weights.
+  $instance = field_info_instance('ting_object', $field_name, 'ting_object');
+  $instance['display']['collection_list']['weight'] = -50;
+  $instance['display']['search_result']['weight'] = -50;
+  field_update_instance($instance);
+
+  field_cache_clear();
+}
