@@ -4,10 +4,23 @@
  * ting_null_covers.install
  */
 
+/**
+ * Implements hook_enable().
+ */
 function ting_null_covers_enable() {
   _ting_null_covers_modify_fields();
 }
 
+/**
+ * Change ting_object title position.
+ */
+function ting_null_covers_update_7001() {
+  _ting_null_covers_modify_fields();
+}
+
+/**
+ * Change ting_object title position.
+ */
 function _ting_null_covers_modify_fields() {
   $field_name = 'ting_title';
 
